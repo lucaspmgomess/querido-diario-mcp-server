@@ -1,11 +1,13 @@
-"""Manual, live smoke test against the real Querido Diário production API.
+"""Manual, live smoke test of the HTTP client against the real Querido Diário API.
+
+Exercises only `QueridoDiarioClient` -> the production API directly. It does NOT
+go through the MCP protocol layer — for that, see `scripts/smoke_test_mcp.py`.
 
 Not part of the automated test suite and not run in CI — pytest never touches the
 network. Run this by hand after a suspected upstream change (a new domain, an
-outage, a schema change) to quickly check whether `search_cities` and
-`search_gazettes` still work end to end against the real API:
+outage, a schema change) to quickly check whether the HTTP integration still works:
 
-    uv run python scripts/smoke_test.py
+    uv run python scripts/smoke_test_api.py
 
 Respects `QD_API_BASE_URL` if set, otherwise uses the client's default. Exits
 non-zero on any failure.

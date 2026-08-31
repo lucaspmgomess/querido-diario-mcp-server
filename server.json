@@ -1,0 +1,33 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.lucaspmgomess/querido-diario-mcp-server",
+  "title": "Querido Diário MCP Server",
+  "description": "Unofficial, read-only MCP server for the public Querido Diário API (Brazilian municipal gazettes)",
+  "repository": {
+    "url": "https://github.com/lucaspmgomess/querido-diario-mcp-server",
+    "source": "github",
+    "id": "1352671389"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
+      "identifier": "querido-diario-mcp-server",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "QD_API_BASE_URL",
+          "description": "Base URL of the Querido Diário API. Optional; defaults to the current production API.",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string",
+          "default": "https://api.queridodiario.org.br"
+        }
+      ]
+    }
+  ]
+}
