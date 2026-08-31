@@ -7,21 +7,25 @@ from dataclasses import dataclass
 
 from querido_diario_mcp_server import __version__
 
-DEFAULT_BASE_URL = "https://api.queridodiario.ok.org.br"
-"""Documented production base URL for the public Querido Diário API.
+DEFAULT_BASE_URL = "https://api.queridodiario.org.br"
+"""Current production base URL for the public Querido Diário API.
 
-Source: https://docs.queridodiario.ok.org.br/en/latest/using/public-api.html and the
-upstream FastAPI app at https://github.com/okfn-brasil/querido-diario-api. As of this
-writing, live requests against this host return a generic 404 from what appears to be
-an infrastructure/reverse-proxy layer rather than the FastAPI application itself; see
-the README's "Upstream API status" section. The value is kept as the default because
-it is the address the project documents and may recover independently of this code.
+Derived from the official production deployment configuration at
+https://github.com/okfn-brasil/querido-diario-deployment
+(`k8s/overlays/production/kustomization.yaml`, which sets `QD_API_URL` and patches the
+frontend's `env.js` to this same host), and independently confirmed live: `/health`,
+`/cities`, and `/gazettes` all return correct FastAPI JSON responses, including real
+historical gazette data. The older `api.queridodiario.ok.org.br` host is legacy — its
+DNS and TLS certificate are still live, but every path on it returns a generic,
+non-FastAPI 404, and the frontend served from the corresponding `queridodiario.ok.org.br`
+is a stale, separately-hosted (Netlify) deployment, not the current production site. See
+the README's "Upstream API status" section for the full evidence trail.
 """
 
 USER_AGENT = f"querido-diario-mcp-server/{__version__} (+https://github.com/okfn-brasil/querido-diario-api)"
 
 DEFAULT_CONNECT_TIMEOUT = 5.0
-DEFAULT_READ_TIMEOUT = 15.0
+DEFAULT_READ_TIMEOUT = 30.0
 DEFAULT_WRITE_TIMEOUT = 5.0
 DEFAULT_POOL_TIMEOUT = 5.0
 

@@ -1,6 +1,6 @@
 # querido-diario-mcp-server
 
-> **Community-built, unofficial** open-source MCP server for the [Querido Diário](https://queridodiario.ok.org.br) public API. Querido Diário is a project of [Open Knowledge Brasil](https://ok.org.br/). This repository is **not** an official Open Knowledge Brasil project unless explicitly adopted by the organization, and is not affiliated with, endorsed by, or supported by it.
+> **Community-built, unofficial** open-source MCP server for the [Querido Diário](https://queridodiario.org.br) public API. Querido Diário is a project of [Open Knowledge Brasil](https://ok.org.br/). This repository is **not** an official Open Knowledge Brasil project unless explicitly adopted by the organization, and is not affiliated with, endorsed by, or supported by it.
 
 A local-first [Model Context Protocol](https://modelcontextprotocol.io) server that gives MCP clients (Claude, Cursor, Codex, and others) read-only, structured access to Brazilian municipal official gazettes indexed by Querido Diário — without a hosted backend, a platform login, or a proprietary service in between.
 
@@ -134,19 +134,19 @@ args = ["--directory", "/absolute/path/to/querido-diario-mcp-server", "run", "qu
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `QD_API_BASE_URL` | `https://api.queridodiario.ok.org.br` | Base URL of the Querido Diário API. Override to point at a local/staging instance (see [Upstream API status](#upstream-api-status)). |
+| `QD_API_BASE_URL` | `https://api.queridodiario.org.br` | Base URL of the Querido Diário API. Override to point at a local/staging instance (see [Upstream API status](#upstream-api-status)). |
 
 ## Upstream API status
 
-The default base URL, `https://api.queridodiario.ok.org.br`, is the address documented at [docs.queridodiario.ok.org.br](https://docs.queridodiario.ok.org.br/en/latest/using/public-api.html), and it is independently confirmed by three sources, not just the docs page:
+The default base URL, `https://api.queridodiario.org.br`, is derived directly from the official production deployment configuration, not guessed:
 
-1. The live frontend's own `env.js` sets `window.__env.apiUrl = 'https://api.queridodiario.ok.org.br'`, and the checked-in source (`okfn-brasil/querido-diario-frontend`, `src/env.js` and `src/app/env.service.ts`) matches it byte for byte.
-2. The frontend's HTTP services (e.g. `territory.service.ts`) build requests as `${apiUrl}/cities`, `${apiUrl}/cities/{id}` — bare paths, no `/api` or other prefix — exactly what this client sends.
-3. The production Traefik `IngressRoute` in `okfn-brasil/querido-diario-deployment` (`k8s/base/api/ingressroute.yaml`) routes `Host(api.queridodiario.ok.org.br)`, any path, straight to the API service on port 8080, with no `PathPrefix` requirement; the production `ConfigMap` sets `QUERIDO_DIARIO_API_ROOT_PATH: ""`. There is also a same-domain `queridodiario.ok.org.br/api/*` route, but it's a 302 redirect to `https://api.queridodiario.ok.org.br/*` (see `api-redirect` middleware), not a second valid origin — so there is no undocumented path prefix or runtime override to find.
+- [`okfn-brasil/querido-diario-deployment`](https://github.com/okfn-brasil/querido-diario-deployment)'s `k8s/overlays/production/kustomization.yaml` sets `DOMAIN: queridodiario.org.br` and `QD_API_URL: https://api.queridodiario.org.br` on the production `ConfigMap`, patches the frontend's `env.js` to the same `apiUrl`, and defines the production Traefik `IngressRoute` matching `Host(api.queridodiario.org.br)` → the `api` service, port 8080, no path prefix.
+- The currently deployed frontend at `https://queridodiario.org.br/env.js` matches that configuration exactly (`apiUrl = 'https://api.queridodiario.org.br'`), and its `Last-Modified` header is recent, consistent with an actively maintained deployment.
+- Live requests confirm it: `/health`, `/cities`, `/cities?city_name=...`, and `/gazettes` all return correct, well-formed FastAPI JSON — including real historical gazette data (e.g. Porto Alegre alone has 10,000+ indexed gazettes going back to 2022). `/gazettes` searches can be slow (~20-30s observed for a real query), which is why this client's default read timeout is 30s.
 
-**As of this writing, live requests to every path implied by the above (`/health`, `/cities`, `/gazettes`, `/docs`, with and without an `/api` prefix) return a generic `404 page not found`** that does not match FastAPI's JSON-shaped 404 — it reads as Traefik's own "no router matched this request" fallback rather than a response from the FastAPI application itself, consistent with a DNS, TLS, or ingress-routing problem in front of the API rather than a wrong URL. This was verified by direct `curl` requests on 2026-08-31 (initial check) and reconfirmed on the same date after this investigation; it is infrastructure this codebase cannot fix, and no alternative endpoint is documented or evidenced anywhere in the upstream source, so none is guessed here.
+The older `api.queridodiario.ok.org.br` host (this project's previous default) is legacy: its DNS and Let's Encrypt certificate are still live, but every path on it returns a generic, non-FastAPI `404 page not found` — consistent with an ingress/routing layer with no active route, not the FastAPI app itself. The frontend at the corresponding `queridodiario.ok.org.br` also still resolves, but the `Server`/cache headers show it being served from **Netlify**, a separate, evidently stale static deployment — not the current production site (which is Cloudflare-fronted, per the config above). A third-party MCP integration (`mcp.ai`'s `querido_diario_buscar` tool) independently reports its own Querido Diário upstream call failing with an explicit "HTTP 404" error today, corroborating that this class of failure is real and externally visible, not specific to this project's requests.
 
-Because of this, the request/response contract implemented in `client.py` and `models.py` was verified against the **upstream FastAPI source** at [`okfn-brasil/querido-diario-api`](https://github.com/okfn-brasil/querido-diario-api) (`api/api.py`) rather than a live Swagger UI, per that repository being the authoritative contract when the hosted docs/API are unreachable. If you have access to a working instance (production, once the outage above is resolved, or a local instance per the upstream repos' own setup docs), point `QD_API_BASE_URL` at it and the client works unchanged.
+Given this, `QD_API_BASE_URL` now defaults to `https://api.queridodiario.org.br`. If you have reason to point at a different instance (a local dev deployment, or a future domain change), override the environment variable — the client works unchanged against any conformant instance.
 
 ## Development
 
@@ -165,6 +165,14 @@ The four checks above (everything but `uv sync`) all must pass before a change i
 Unit tests for `client.py` mock the HTTP boundary with `httpx.MockTransport` — no test depends on network access or a live Querido Diário instance. They cover successful requests, query parameter serialization (repeated `territory_ids`, exact query-string preservation, date ranges, pagination, sorting), empty results, and upstream failure modes (404, 400/422, 5xx, malformed/non-JSON bodies, timeouts, connection errors).
 
 Integration tests for `server.py` drive the real `MCPServer` instance through the MCP SDK's in-process `Client` (no subprocess, no open port) and assert on tool discoverability, input schemas, structured tool output, and that both input-validation failures and upstream integration failures surface as clean MCP tool errors rather than raw Python tracebacks or leaked HTML error pages.
+
+### Manual live smoke test
+
+`scripts/smoke_test.py` is a small, manual-only script that calls `search_cities` and `search_gazettes` against the real production API (respecting `QD_API_BASE_URL`). It is not part of the automated suite and never runs in CI — use it by hand to quickly re-verify the upstream API is reachable and returning sane data after a suspected outage or domain change:
+
+```bash
+uv run python scripts/smoke_test.py
+```
 
 ## Security / read-only design
 
