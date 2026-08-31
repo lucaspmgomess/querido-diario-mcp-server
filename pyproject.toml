@@ -56,7 +56,7 @@ known-first-party = ["querido_diario_mcp_server"]
 [tool.pyright]
 include = ["src", "tests"]
 pythonVersion = "3.12"
-typeCheckingMode = "basic"
+typeCheckingMode = "strict"
 venvPath = "."
 venv = ".venv"
 

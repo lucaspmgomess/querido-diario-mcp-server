@@ -138,22 +138,27 @@ args = ["--directory", "/absolute/path/to/querido-diario-mcp-server", "run", "qu
 
 ## Upstream API status
 
-The default base URL, `https://api.queridodiario.ok.org.br`, is the address documented at [docs.queridodiario.ok.org.br](https://docs.queridodiario.ok.org.br/en/latest/using/public-api.html) and matches the `apiUrl` the official Querido Diário frontend itself is configured to use. **As of this writing, live requests to every documented path on that host (`/health`, `/cities`, `/gazettes`, `/docs`, with and without an `/api` prefix) return a generic `404 page not found`** that does not match FastAPI's JSON-shaped 404 — it looks like an infrastructure/reverse-proxy layer in front of the API, not the FastAPI application itself, is misrouting or is down. This was verified by direct `curl` requests during development of this project (2026-08-31); it is not something this codebase can fix.
+The default base URL, `https://api.queridodiario.ok.org.br`, is the address documented at [docs.queridodiario.ok.org.br](https://docs.queridodiario.ok.org.br/en/latest/using/public-api.html), and it is independently confirmed by three sources, not just the docs page:
 
-Because of this, the request/response contract implemented in `client.py` and `models.py` was verified against the **upstream FastAPI source** at [`okfn-brasil/querido-diario-api`](https://github.com/okfn-brasil/querido-diario-api) (`api/api.py`) rather than a live Swagger UI, per that repository being the authoritative contract when the hosted docs/API are unreachable. If you have access to a working instance (production, once the outage above is resolved, or a local `docker-compose up` per the upstream repo's `docs/README.md`), point `QD_API_BASE_URL` at it and the client works unchanged.
+1. The live frontend's own `env.js` sets `window.__env.apiUrl = 'https://api.queridodiario.ok.org.br'`, and the checked-in source (`okfn-brasil/querido-diario-frontend`, `src/env.js` and `src/app/env.service.ts`) matches it byte for byte.
+2. The frontend's HTTP services (e.g. `territory.service.ts`) build requests as `${apiUrl}/cities`, `${apiUrl}/cities/{id}` — bare paths, no `/api` or other prefix — exactly what this client sends.
+3. The production Traefik `IngressRoute` in `okfn-brasil/querido-diario-deployment` (`k8s/base/api/ingressroute.yaml`) routes `Host(api.queridodiario.ok.org.br)`, any path, straight to the API service on port 8080, with no `PathPrefix` requirement; the production `ConfigMap` sets `QUERIDO_DIARIO_API_ROOT_PATH: ""`. There is also a same-domain `queridodiario.ok.org.br/api/*` route, but it's a 302 redirect to `https://api.queridodiario.ok.org.br/*` (see `api-redirect` middleware), not a second valid origin — so there is no undocumented path prefix or runtime override to find.
+
+**As of this writing, live requests to every path implied by the above (`/health`, `/cities`, `/gazettes`, `/docs`, with and without an `/api` prefix) return a generic `404 page not found`** that does not match FastAPI's JSON-shaped 404 — it reads as Traefik's own "no router matched this request" fallback rather than a response from the FastAPI application itself, consistent with a DNS, TLS, or ingress-routing problem in front of the API rather than a wrong URL. This was verified by direct `curl` requests on 2026-08-31 (initial check) and reconfirmed on the same date after this investigation; it is infrastructure this codebase cannot fix, and no alternative endpoint is documented or evidenced anywhere in the upstream source, so none is guessed here.
+
+Because of this, the request/response contract implemented in `client.py` and `models.py` was verified against the **upstream FastAPI source** at [`okfn-brasil/querido-diario-api`](https://github.com/okfn-brasil/querido-diario-api) (`api/api.py`) rather than a live Swagger UI, per that repository being the authoritative contract when the hosted docs/API are unreachable. If you have access to a working instance (production, once the outage above is resolved, or a local instance per the upstream repos' own setup docs), point `QD_API_BASE_URL` at it and the client works unchanged.
 
 ## Development
 
 ```bash
 uv sync                          # install runtime + dev dependencies
-uv run pytest                    # run the test suite
-uv run pytest --cov              # ... with coverage
 uv run ruff check .              # lint
 uv run ruff format --check .     # formatting check
-uv run pyright                   # static type checking
+uv run pyright                   # static type checking (strict mode)
+uv run pytest --cov              # test suite, with coverage
 ```
 
-All four of the above must pass before a change is considered complete.
+The four checks above (everything but `uv sync`) all must pass before a change is considered complete; this is exactly what CI runs.
 
 ## Tests
 
@@ -171,7 +176,7 @@ Integration tests for `server.py` drive the real `MCPServer` instance through th
 
 ## Limitations
 
-Deliberately not implemented in this phase: arbitrary URL fetching, full gazette text/PDF download, OCR, write operations of any kind, a database, crawling or background jobs, LLM summarization, and a web interface. See the module docstrings in `server.py` for the reasoning.
+Deliberately not implemented in this phase: arbitrary URL fetching, full gazette text/PDF download, OCR, write operations of any kind, a database, crawling or background jobs, LLM summarization, and a web interface. `server.py`'s module docstring explains the read-only, no-arbitrary-fetch design specifically (see [Security / read-only design](#security--read-only-design) above); the rest are simply out of scope for a deliberately small, focused Phase 1 server.
 
 ## Attribution
 
@@ -179,7 +184,7 @@ This project calls the public Querido Diário API but does not vendor or copy an
 
 ## Contributing
 
-Issues and pull requests are welcome. Please run the full check suite (`ruff check`, `ruff format --check`, `pyright`, `pytest`) before opening a PR, and keep new tools/behavior scoped to what's documented above — this project intentionally stays small.
+Issues and pull requests are welcome. Please run the full check suite (`ruff check`, `ruff format --check`, `pyright`, `pytest --cov`) before opening a PR, and keep new tools/behavior scoped to what's documented above — this project intentionally stays small.
 
 ## License
 

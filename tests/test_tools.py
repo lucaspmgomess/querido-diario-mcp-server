@@ -14,7 +14,7 @@ from contextlib import asynccontextmanager
 import httpx
 import pytest
 from mcp.client.client import Client
-from mcp_types import TextContent
+from mcp_types import CallToolResult, TextContent
 
 import querido_diario_mcp_server.server as server_module
 from querido_diario_mcp_server.client import QueridoDiarioClient
@@ -51,7 +51,7 @@ def _json(status_code: int, payload: object) -> httpx.Response:
     return httpx.Response(status_code, json=payload)
 
 
-def _text_of(result) -> str:
+def _text_of(result: CallToolResult) -> str:
     parts = [block.text for block in result.content if isinstance(block, TextContent)]
     return "\n".join(parts)
 

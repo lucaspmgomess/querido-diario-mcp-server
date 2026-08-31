@@ -14,9 +14,8 @@ SSRF vector, and it never writes data anywhere.
 from __future__ import annotations
 
 import re
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from dataclasses import dataclass
 from datetime import date
 from typing import Literal
 
@@ -42,15 +41,21 @@ INSTRUCTIONS = (
 )
 
 
-@dataclass
 class AppContext:
-    """State shared across tool calls for the lifetime of the server process."""
+    """State shared across tool calls for the lifetime of the server process.
 
-    client: QueridoDiarioClient
+    Deliberately not a `@dataclass`: dataclass field processing resolves postponed
+    (`from __future__ import annotations`) string annotations via `sys.modules`, which
+    breaks under `mcp dev`'s file-based import (it execs the module without
+    registering it in `sys.modules` first). A hand-written `__init__` sidesteps that.
+    """
+
+    def __init__(self, client: QueridoDiarioClient) -> None:
+        self.client = client
 
 
 @asynccontextmanager
-async def app_lifespan(server: MCPServer[AppContext]) -> AsyncIterator[AppContext]:
+async def app_lifespan(server: MCPServer[AppContext]) -> AsyncGenerator[AppContext]:
     client = QueridoDiarioClient()
     try:
         yield AppContext(client=client)

@@ -369,5 +369,5 @@ class TestClientLifecycle:
     async def test_context_manager_closes_owned_client(self) -> None:
         config = ClientConfig(base_url=BASE_URL)
         async with QueridoDiarioClient(config=config) as client:
-            assert not client._client.is_closed
-        assert client._client.is_closed
+            assert not client.is_closed
+        assert client.is_closed

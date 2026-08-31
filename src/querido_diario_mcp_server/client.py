@@ -12,7 +12,7 @@ Only the read-only endpoints this project exposes as MCP tools are implemented:
 from __future__ import annotations
 
 from types import TracebackType
-from typing import Any, Self
+from typing import Any, Self, cast
 
 import httpx
 from pydantic import ValidationError
@@ -46,12 +46,16 @@ def _extract_detail(response: httpx.Response) -> str:
     forwarded to the caller.
     """
     try:
-        data = response.json()
+        data: Any = response.json()
     except ValueError:
         return f"non-JSON error response (content-type: {response.headers.get('content-type', 'unknown')})"
-    if isinstance(data, dict) and "detail" in data:
-        return str(data["detail"])[:_MAX_ERROR_DETAIL_LEN]
-    return str(data)[:_MAX_ERROR_DETAIL_LEN]
+    detail: Any = data
+    if isinstance(data, dict):
+        # response.json() is untyped JSON; a dict key is always str, so this narrowing is safe.
+        payload = cast(dict[str, Any], data)
+        if "detail" in payload:
+            detail = payload["detail"]
+    return str(detail)[:_MAX_ERROR_DETAIL_LEN]
 
 
 class QueridoDiarioClient:
@@ -100,6 +104,11 @@ class QueridoDiarioClient:
         """Close the underlying HTTP connection pool, if this client owns it."""
         if self._owns_client:
             await self._client.aclose()
+
+    @property
+    def is_closed(self) -> bool:
+        """Whether the underlying HTTP connection pool has been closed."""
+        return self._client.is_closed
 
     async def _get(self, path: str, params: dict[str, Any]) -> Any:
         try:
