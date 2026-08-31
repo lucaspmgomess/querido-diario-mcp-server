@@ -1,0 +1,71 @@
+[project]
+name = "querido-diario-mcp-server"
+version = "0.1.0"
+description = "Unofficial, open-source, local-first MCP server for the public Querido Diário API"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Lucas Paes Maurer Gomes", email = "160779797+lucaspmgomess@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "mcp[cli]>=2.1.1",
+    "pydantic>=2.13.5",
+]
+
+[project.urls]
+Homepage = "https://github.com/lucaspmgomess/querido-diario-mcp-server"
+Repository = "https://github.com/lucaspmgomess/querido-diario-mcp-server"
+Issues = "https://github.com/lucaspmgomess/querido-diario-mcp-server/issues"
+
+[project.scripts]
+querido-diario-mcp-server = "querido_diario_mcp_server:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.411",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.16.5",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "RUF", # ruff-specific rules
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["querido_diario_mcp_server"]
+
+[tool.pyright]
+include = ["src", "tests"]
+pythonVersion = "3.12"
+typeCheckingMode = "basic"
+venvPath = "."
+venv = ".venv"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["src/querido_diario_mcp_server"]
+
+[tool.coverage.report]
+skip_empty = true
