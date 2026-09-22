@@ -1,0 +1,55 @@
+name: Feature request
+description: Propose a focused improvement to the MCP server
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: What user or agent workflow would this improve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe the smallest useful behavior or interface change.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: How can this be handled today?
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Area
+      options:
+        - Municipality discovery
+        - Gazette search
+        - MCP interface
+        - HTTP integration
+        - Validation and errors
+        - Documentation
+        - Developer tooling
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: principles
+    attributes:
+      label: Project principles
+      options:
+        - label: The proposal can remain read-only.
+          required: true
+        - label: The proposal does not require arbitrary URL fetching.
+          required: true
+        - label: The proposal does not require a hosted proprietary backend.
+          required: true
