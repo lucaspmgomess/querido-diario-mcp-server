@@ -235,7 +235,7 @@ uv run python scripts/smoke_test_mcp.py
 
 ## Project status
 
-The project is currently in beta. The MCP tool surface is intentionally small and changes are kept conservative.
+The project is currently in beta. The MCP tool surface is intentionally small and changes are kept conservative. Release history is documented in [CHANGELOG.md](./CHANGELOG.md).
 
 The following are intentionally outside the current scope:
 
