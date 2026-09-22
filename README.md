@@ -2,109 +2,51 @@
 
 <!-- mcp-name: io.github.lucaspmgomess/querido-diario-mcp-server -->
 
-**Consulte diários oficiais municipais brasileiros diretamente pelo Claude, Cursor, Codex e outros clientes compatíveis com MCP.**
-
 [![PyPI](https://img.shields.io/pypi/v/querido-diario-mcp-server.svg)](https://pypi.org/project/querido-diario-mcp-server/)
 [![Python](https://img.shields.io/pypi/pyversions/querido-diario-mcp-server.svg)](https://pypi.org/project/querido-diario-mcp-server/)
 [![CI](https://github.com/lucaspmgomess/querido-diario-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/lucaspmgomess/querido-diario-mcp-server/actions/workflows/ci.yml)
 [![MCP Registry](https://img.shields.io/badge/MCP%20Registry-published-brightgreen)](https://registry.modelcontextprotocol.io/?q=io.github.lucaspmgomess%2Fquerido-diario-mcp-server)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-**Sem chave de API · Executa localmente · Somente leitura · Sem telemetria · Código aberto**
+**No API key · Runs locally · Read-only · No telemetry · Open source**
 
-> 🌎 **English version:** [README.en.md](./README.en.md)
+> 🇧🇷 **Versão em português:** [README.pt-BR.md](./README.pt-BR.md)
 
-O **Querido Diário MCP Server** conecta agentes de IA à API pública do [Querido Diário](https://queridodiario.org.br), permitindo consultar diários oficiais municipais brasileiros por meio de ferramentas estruturadas do Model Context Protocol (MCP).
+> **Community-built, unofficial** open-source MCP server for the [Querido Diário](https://queridodiario.org.br) public API. Querido Diário is a project of [Open Knowledge Brasil](https://ok.org.br/). This repository is **not** an official Open Knowledge Brasil project unless explicitly adopted by the organization, and is not affiliated with, endorsed by, or supported by it. It sends nothing anywhere except read-only HTTPS requests to the public Querido Diário API — no telemetry, no accounts, no proprietary backend.
 
-> **Exemplo de uso:**  
-> "Encontre todas as menções a inteligência artificial nos diários oficiais de Porto Alegre em 2026."
+A local-first [Model Context Protocol](https://modelcontextprotocol.io) server that gives MCP clients (Claude, Cursor, Codex, and others) read-only, structured access to Brazilian municipal official gazettes indexed by Querido Diário.
 
-O agente pode identificar o município correto, resolver seu código IBGE, consultar o índice de diários oficiais e devolver resultados estruturados sem que o usuário precise conhecer a API.
+## Why this project exists
 
----
+[Querido Diário](https://queridodiario.org.br), maintained by [Open Knowledge Brasil](https://ok.org.br/), makes Brazilian municipal official gazettes searchable through an open-data platform and a public API.
 
-## Por que este projeto existe?
+This project adds a **native MCP interface** on top of that API so MCP clients and AI agents can use the data directly as tools, instead of a human having to:
 
-O [Querido Diário](https://queridodiario.org.br), mantido pela [Open Knowledge Brasil](https://ok.org.br/), torna diários oficiais municipais brasileiros pesquisáveis por meio de uma plataforma de dados abertos e de uma API pública.
+1. figure out the right municipality;
+2. look up its IBGE territory ID;
+3. learn the Querido Diário API's own conventions;
+4. build the search parameters by hand;
+5. manually interpret the response.
 
-Este projeto adiciona uma **interface nativa de MCP** sobre essa API, permitindo que clientes e agentes de IA utilizem os dados diretamente como ferramentas.
+The server runs locally as a subprocess and only ever issues read-only HTTPS requests to the public Querido Diário API.
 
-Sem o MCP, um fluxo típico exigiria:
+## Quick Start
 
-1. descobrir o município correto;
-2. obter o código IBGE correspondente;
-3. conhecer a API do Querido Diário;
-4. montar os parâmetros de busca;
-5. interpretar manualmente a resposta.
-
-Com este servidor, um agente compatível com MCP pode executar esse fluxo de forma estruturada.
-
-O servidor roda localmente como um subprocesso e realiza apenas requisições HTTPS de leitura para a API pública do Querido Diário.
-
----
-
-## O que dá para fazer?
-
-### Licitações, compras públicas e contratos
-
-Pesquise empresas, processos licitatórios, contratos, termos de contratação e referências a compras governamentais.
-
-> "Encontre menções à ACME Ltda nos diários oficiais de Porto Alegre entre janeiro e julho de 2026."
-
-### Pessoas e organizações
-
-Acompanhe menções a pessoas, empresas, associações, órgãos públicos e outras organizações.
-
-> "Pesquise João da Silva nos diários oficiais de Torres, RS."
-
-### Leis, decretos e atos administrativos
-
-Pesquise legislação municipal, decretos, nomeações, exonerações, atos administrativos e mudanças regulatórias.
-
-> "Encontre publicações relacionadas à regulamentação de inteligência artificial."
-
-### Jornalismo de dados e pesquisa cívica
-
-Use o Querido Diário como fonte estruturada em fluxos de pesquisa assistidos por IA.
-
-> "Busque contratos públicos relacionados a reconhecimento facial nos diários oficiais de Porto Alegre."
-
-### Agentes e automações
-
-Combine a busca em diários oficiais com outros servidores MCP para criar fluxos maiores de investigação, classificação, acompanhamento e análise de informações públicas.
-
----
-
-## Início rápido
-
-Requisitos:
-
-- Python 3.12+
-- [`uv`](https://docs.astral.sh/uv/), que fornece o comando `uvx`
-
-Não é necessário clonar o repositório.
+Requires [uv](https://docs.astral.sh/uv/) (which provides `uvx`) and Python 3.12+. No repository clone needed — `uvx` fetches the published package from PyPI and runs it:
 
 ```bash
 uvx querido-diario-mcp-server
 ```
 
-Esse comando inicia o servidor MCP via `stdio`.
+This starts the MCP server on stdio. It produces no interactive output by design — it's meant to be launched by an MCP client (see [Client configuration](#client-configuration)), not run standalone in a terminal.
 
-O servidor não possui interface interativa no terminal por design: ele foi feito para ser iniciado por um cliente MCP.
+## Client configuration
 
----
-
-## Conectando ao seu cliente de IA
-
-Todos os clientes abaixo usam o mesmo comando:
-
-```bash
-uvx querido-diario-mcp-server
-```
+Each of these uses the same `uvx querido-diario-mcp-server` command; only the config file format differs.
 
 ### Claude Desktop / Claude Code
 
-Adicione ao `claude_desktop_config.json` no Claude Desktop ou ao `.mcp.json` do projeto no Claude Code:
+Add to `claude_desktop_config.json` (Claude Desktop) or a project-level `.mcp.json` (Claude Code):
 
 ```json
 {
@@ -119,7 +61,7 @@ Adicione ao `claude_desktop_config.json` no Claude Desktop ou ao `.mcp.json` do 
 
 ### Cursor
 
-Adicione ao `.cursor/mcp.json` do projeto ou às configurações globais de MCP do Cursor:
+Add the same shape to `.cursor/mcp.json` (project-level) or your global Cursor MCP settings:
 
 ```json
 {
@@ -134,7 +76,7 @@ Adicione ao `.cursor/mcp.json` do projeto ou às configurações globais de MCP 
 
 ### Codex CLI
 
-Adicione ao arquivo `~/.codex/config.toml`:
+Add to `~/.codex/config.toml`:
 
 ```toml
 [mcp_servers.querido-diario]
@@ -142,57 +84,28 @@ command = "uvx"
 args = ["querido-diario-mcp-server"]
 ```
 
-### Outros clientes MCP
+### Other stdio-based MCP clients
 
-Qualquer cliente compatível com servidores MCP locais via `stdio` pode utilizar:
+Any client that launches MCP servers as a local stdio subprocess can use the same command (`uvx`) and argument (`querido-diario-mcp-server`) — consult that client's own configuration docs for the exact file/key names.
 
-- comando: `uvx`
-- argumento: `querido-diario-mcp-server`
+## Tools
 
-Consulte a documentação do seu cliente para o formato exato da configuração.
+Only three tools are exposed, all read-only.
 
----
-
-## Ferramentas disponíveis
-
-O servidor expõe propositalmente uma superfície pequena e somente leitura.
-
-| Ferramenta | Finalidade |
+| Tool | Purpose |
 |---|---|
-| `search_cities` | Busca municípios brasileiros por nome parcial e resolve o código IBGE de 7 dígitos. Permite filtro opcional por estado. |
-| `get_city` | Consulta os detalhes de um município usando seu código IBGE exato de 7 dígitos. |
-| `search_gazettes` | Realiza busca textual em diários oficiais indexados, com filtros por município, período, paginação e ordenação. |
+| `search_cities` | Find Brazilian municipalities by (partial) name and resolve their 7-digit IBGE territory ID. Optional `state_code` filter. |
+| `get_city` | Fetch one municipality's details by its exact 7-digit IBGE territory ID. |
+| `search_gazettes` | Full-text search over published gazette content, filterable by city, publication date range, page size/offset, and sort order. |
 
-### Sintaxe de busca
+`search_gazettes` uses OpenSearch's ["simple query string" syntax](https://opensearch.org/docs/latest/query-dsl/full-text/simple-query-string/) upstream: bare words are OR'd together, `+term` requires a term, `-term` excludes it, and `"exact phrase"` matches literally — e.g. `'"João da Silva"'` for an exact name.
 
-A ferramenta `search_gazettes` utiliza a sintaxe **simple query string** do OpenSearch usada pela API do Querido Diário.
+## Examples
 
-Exemplos:
-
-| Consulta | Significado |
-|---|---|
-| `inteligência artificial` | Encontra qualquer um dos termos |
-| `+inteligência +artificial` | Exige os dois termos |
-| `-cancelado` | Exclui um termo |
-| `"João da Silva"` | Busca uma expressão exata |
-
----
-
-## Exemplo completo
-
-O usuário pergunta:
-
-```text
-Encontre menções à ACME Ltda nos diários oficiais de Porto Alegre
-entre janeiro e julho de 2026.
 ```
+User: "Find mentions of ACME Ltda in Porto Alegre gazettes from January to July 2026."
 
-O cliente MCP pode executar:
-
-```text
-1. search_cities(city_name="Porto Alegre")
-   → territory_id: "4314902"
-
+1. search_cities(city_name="Porto Alegre")            -> resolves territory_id "4314902"
 2. search_gazettes(
        query='"ACME Ltda"',
        territory_ids=["4314902"],
@@ -201,303 +114,142 @@ O cliente MCP pode executar:
    )
 ```
 
-O agente recebe os resultados de forma estruturada e pode então resumir, comparar, classificar ou combinar essas informações com outras ferramentas.
+Other things you can ask an MCP client connected to this server:
 
-Outros exemplos de prompts:
+- "Which Querido Diário municipality entry corresponds to Torres, RS?"
+- "Search for public procurement references to artificial intelligence in Porto Alegre gazettes."
+- "Get the Querido Diário entry for IBGE territory ID 3550308."
 
-```text
-Qual é o registro do município de Torres, RS, no Querido Diário?
+## Demo
+
+There's no video, GIF, or screenshot in this section yet — deliberately, so as not to imply behavior that hasn't actually been recorded. A real demo of the server running inside Claude or Cursor will be added here once one exists.
+
+## Architecture
+
 ```
-
-```text
-Pesquise referências a compras públicas de inteligência artificial
-nos diários oficiais de Porto Alegre.
-```
-
-```text
-Encontre publicações mencionando uma determinada empresa durante 2025.
-```
-
-```text
-Consulte o município correspondente ao código IBGE 3550308.
-```
-
----
-
-## Demonstração
-
-Ainda não há um vídeo, GIF ou captura de tela desta seção — de propósito, para não sugerir um comportamento que não foi validado de fato. Assim que houver uma demonstração real do servidor rodando dentro do Claude ou do Cursor, ela será adicionada aqui.
-
----
-
-## Como funciona
-
-```text
-Cliente de IA
-   │
-   │ MCP / stdio
-   ▼
-querido-diario-mcp-server
-   │
-   │ requisições HTTPS tipadas
-   ▼
-API pública do Querido Diário
-```
-
-Estrutura do projeto:
-
-```text
 src/querido_diario_mcp_server/
-    __init__.py   # versão do pacote + ponto de entrada
-    config.py     # configuração por variáveis de ambiente
-    errors.py     # hierarquia de erros da integração
-    models.py     # modelos Pydantic tipados
-    client.py     # cliente HTTP assíncrono da API
-    server.py     # camada MCP e definição das ferramentas
+    __init__.py   # package version + main() entry point
+    config.py     # environment-driven configuration (QD_API_BASE_URL, timeouts)
+    errors.py     # QDError exception hierarchy (integration-level failures)
+    models.py     # Pydantic domain models mirroring the upstream API contract
+    client.py     # async httpx client for the Querido Diário HTTP API — no MCP imports
+    server.py     # MCP protocol boundary: MCPServer instance, lifespan, tool definitions
 ```
 
-A implementação separa propositalmente a integração HTTP da camada MCP:
+`client.py` knows nothing about the Model Context Protocol; it is a small, typed wrapper around three upstream endpoints that can be tested entirely with `httpx.MockTransport`. `server.py` is the only module that imports the MCP SDK: it validates tool arguments, translates `QDError`s into `ToolError`s an LLM can read and self-correct from, and returns typed structured output. A single `httpx.AsyncClient` connection pool is created once, in the server's lifespan, and reused across every tool call.
 
-- `client.py` não depende do MCP;
-- `server.py` concentra validação, ferramentas e comportamento de protocolo;
-- um único `httpx.AsyncClient` é criado no ciclo de vida do servidor e reutilizado;
-- erros da API são convertidos em mensagens MCP curtas e compreensíveis para o agente.
+There is another repository, [`mcp-dir/querido_diario-mcp`](https://github.com/mcp-dir/querido_diario-mcp), that points MCP clients at a proprietary hosted implementation. This project is deliberately different: the actual server implementation is open source and runs locally as a subprocess you launch yourself — no account, API key, or hosted proxy involved — and calls the public Querido Diário API directly over plain `httpx`.
 
----
+## Security / read-only design
 
-## Local-first e somente leitura
+- This server only issues `GET` requests to a small, fixed set of upstream endpoints. It has no write path anywhere.
+- It never fetches an arbitrary URL supplied by a tool caller, and it never automatically dereferences the `url` / `txt_url` fields the upstream API returns for a gazette — doing either would be a server-side request forgery (SSRF) primitive. Following those links, if you need the full gazette text, is left to the client/user.
+- All tool arguments are validated before use: territory IDs must be exactly 7 digits, dates must parse as ISO `YYYY-MM-DD` with `published_since <= published_until`, `size` is capped, `offset` must be non-negative, and `sort_by` is constrained to the three values the upstream API accepts.
+- Upstream error bodies are never forwarded verbatim — HTML error pages and oversized bodies are replaced with a short, safe summary before reaching an MCP client.
+- No secrets, credentials, or telemetry are involved; the only configuration is the API base URL.
 
-O projeto foi desenhado para ser conservador em relação ao que um agente pode fazer.
+Deliberately not implemented in this phase: arbitrary URL fetching, full gazette text/PDF download, OCR, write operations of any kind, a database, crawling or background jobs, LLM summarization, and a web interface — these are simply out of scope for a deliberately small, focused server, not oversights.
 
-- Executa somente requisições `GET`.
-- Não possui operações de escrita.
-- Não exige conta.
-- Não exige chave de API.
-- Não coleta telemetria.
-- Não utiliza backend proprietário.
-- Não utiliza proxy hospedado.
-- O agente não pode fornecer uma URL arbitrária para o servidor buscar.
-- URLs de diários retornadas pela API não são abertas automaticamente.
-- Código IBGE, datas, paginação e ordenação são validados.
-- Respostas de erro HTML da API não são repassadas integralmente ao agente.
+## Configuration
 
-Isso reduz a superfície de risco e evita transformar o servidor MCP em um mecanismo genérico de requisições externas ou SSRF.
-
-### Fora de escopo nesta fase
-
-A versão atual não implementa:
-
-- busca arbitrária de URLs;
-- download automático de PDF ou texto integral;
-- OCR;
-- operações de escrita;
-- banco de dados local;
-- crawling;
-- jobs em segundo plano;
-- sumarização por LLM embutida;
-- interface web.
-
-O objetivo é manter uma camada MCP pequena, previsível e segura sobre a API pública existente.
-
----
-
-## Configuração
-
-| Variável | Padrão | Finalidade |
+| Variable | Default | Purpose |
 |---|---|---|
-| `QD_API_BASE_URL` | `https://api.queridodiario.org.br` | URL base da API do Querido Diário. Pode ser sobrescrita para ambientes locais ou de staging. |
+| `QD_API_BASE_URL` | `https://api.queridodiario.org.br` | Base URL of the Querido Diário API. Override to point at a local/staging instance. |
 
-Para uso normal, nenhuma configuração adicional é necessária.
+## Development
 
----
-
-## Instalação e distribuição
-
-O pacote está publicado em:
-
-- [PyPI](https://pypi.org/project/querido-diario-mcp-server/)
-- [MCP Registry](https://registry.modelcontextprotocol.io/?q=io.github.lucaspmgomess%2Fquerido-diario-mcp-server)
-
-Nome no PyPI:
-
-```text
-querido-diario-mcp-server
-```
-
-Nome no MCP Registry:
-
-```text
-io.github.lucaspmgomess/querido-diario-mcp-server
-```
-
----
-
-## Desenvolvimento
-
-Clone o repositório apenas se quiser contribuir ou trabalhar na implementação:
+Local development requires cloning the repository (Quick Start above does not).
 
 ```bash
 git clone https://github.com/lucaspmgomess/querido-diario-mcp-server.git
 cd querido-diario-mcp-server
-uv sync
+uv sync                          # install runtime + dev dependencies
+uv run ruff check .              # lint
+uv run ruff format --check .     # formatting check
+uv run pyright                   # static type checking (strict mode)
+uv run pytest --cov              # test suite, with coverage
 ```
 
-Execute os mesmos checks usados pelo CI:
+The four checks above (everything but `uv sync`) all must pass before a change is considered complete; this is exactly what CI runs.
 
-```bash
-uv run ruff check .
-uv run ruff format --check .
-uv run pyright
-uv run pytest --cov
-```
+To run the server from a local checkout instead of the published package: `uv run querido-diario-mcp-server`.
 
-Para executar o servidor a partir do checkout local:
-
-```bash
-uv run querido-diario-mcp-server
-```
-
-Para inspecionar as ferramentas MCP interativamente:
+To poke at the tools interactively during development, use the [MCP Inspector](https://modelcontextprotocol.io/docs/tools/inspector):
 
 ```bash
 uv run mcp dev src/querido_diario_mcp_server/server.py:mcp
 ```
 
----
+### Tests
 
-## Estratégia de testes
+Unit tests for `client.py` mock the HTTP boundary with `httpx.MockTransport` — no test depends on network access or a live Querido Diário instance. They cover successful requests, query parameter serialization (repeated `territory_ids`, exact query-string preservation, date ranges, pagination, sorting), empty results, and upstream failure modes (404, 400/422, 5xx, malformed/non-JSON bodies, timeouts, connection errors).
 
-### Testes do cliente HTTP
+Integration tests for `server.py` drive the real `MCPServer` instance through the MCP SDK's in-process `Client` (no subprocess, no open port) and assert on tool discoverability, input schemas, structured tool output, and that both input-validation failures and upstream integration failures surface as clean MCP tool errors rather than raw Python tracebacks or leaked HTML error pages.
 
-O `client.py` é testado com `httpx.MockTransport`, portanto a suíte automatizada não depende de internet nem de uma instância ativa do Querido Diário.
+### Manual live smoke tests
 
-A cobertura inclui:
-
-- requisições bem-sucedidas;
-- busca de municípios;
-- serialização de parâmetros;
-- múltiplos `territory_ids`;
-- períodos;
-- paginação;
-- ordenação;
-- resultados vazios;
-- erros 400/404/422;
-- erros 5xx;
-- respostas malformadas;
-- timeouts;
-- falhas de conexão.
-
-### Testes de integração MCP
-
-Os testes de integração executam o servidor MCP real por meio do cliente in-process do SDK.
-
-Eles verificam:
-
-- descoberta das ferramentas;
-- schemas de entrada;
-- saída estruturada e tipada;
-- falhas de validação;
-- falhas da integração upstream;
-- conversão de erros em mensagens MCP limpas, sem traceback Python bruto.
-
-### Smoke tests manuais
-
-Há dois scripts de verificação manual contra produção:
+Two small, manual-only scripts hit the real production API — neither is part of the automated suite, and neither runs in CI:
 
 ```bash
-uv run python scripts/smoke_test_api.py
-uv run python scripts/smoke_test_mcp.py
+uv run python scripts/smoke_test_api.py   # QueridoDiarioClient -> production API only
+uv run python scripts/smoke_test_mcp.py   # full MCP client -> tool -> client -> API path
 ```
 
-Eles podem ser usados para validar a API real e o caminho completo MCP → cliente HTTP → API.
+Use them by hand to re-verify the upstream API (and, for the second script, the full MCP protocol path) after a suspected outage or domain change.
 
----
+## Relationship to Querido Diário
 
-## Relação com o Querido Diário
+This is a **community-built, unofficial** project.
 
-Este é um **projeto comunitário e não oficial**.
+[Querido Diário](https://queridodiario.org.br) is built and maintained by [Open Knowledge Brasil](https://ok.org.br/) and its community.
 
-O [Querido Diário](https://queridodiario.org.br) é mantido pela [Open Knowledge Brasil](https://ok.org.br/) e sua comunidade.
+This repository:
 
-Este repositório:
+- is not an official Open Knowledge Brasil project, unless explicitly adopted by the organization;
+- is not affiliated with, endorsed by, or maintained by Open Knowledge Brasil;
+- does not vendor or copy Querido Diário's implementation;
+- only calls the project's public API.
 
-- não é um projeto oficial da Open Knowledge Brasil, salvo eventual adoção expressa pela organização;
-- não é afiliado, endossado ou mantido pela Open Knowledge Brasil;
-- não copia nem distribui a implementação do Querido Diário;
-- apenas consulta a API pública do projeto.
+Relevant upstream repositories:
 
-Repositórios upstream relevantes:
+- [okfn-brasil/querido-diario](https://github.com/okfn-brasil/querido-diario) — scrapers/collection
+- [okfn-brasil/querido-diario-api](https://github.com/okfn-brasil/querido-diario-api) — public API
+- [okfn-brasil/querido-diario-deployment](https://github.com/okfn-brasil/querido-diario-deployment) — deployment configuration
 
-- [okfn-brasil/querido-diario](https://github.com/okfn-brasil/querido-diario) — coleta/scrapers
-- [okfn-brasil/querido-diario-api](https://github.com/okfn-brasil/querido-diario-api) — API pública
-- [okfn-brasil/querido-diario-deployment](https://github.com/okfn-brasil/querido-diario-deployment) — configuração de deployment
+The production API used by default is:
 
-A API de produção utilizada por padrão é:
-
-```text
+```
 https://api.queridodiario.org.br
 ```
 
-Notas adicionais sobre o histórico dos endpoints estão em:
+`QD_API_BASE_URL` defaults to that host, derived from the official production deployment configuration in `okfn-brasil/querido-diario-deployment` and confirmed live (`/health`, `/cities`, `/gazettes` all return correct data, including real historical gazettes). An older `api.queridodiario.ok.org.br` host still resolves but no longer serves the API — see [`docs/upstream-api-history.md`](./docs/upstream-api-history.md) for the full investigation if you need it.
 
-[`docs/upstream-api-history.md`](./docs/upstream-api-history.md)
+## Why open source?
 
----
+Hosted integrations exist that expose Querido Diário data to MCP clients.
 
-## Por que código aberto?
+This project takes a different approach:
 
-Existem integrações hospedadas que expõem dados do Querido Diário para clientes MCP.
+- the server implementation is public;
+- it runs on the user's own machine;
+- there is no hosted middleware;
+- there is no account;
+- there is no API key;
+- there is no telemetry;
+- the public Querido Diário API is called directly.
 
-Este projeto segue uma abordagem diferente:
+That means the entire path between the agent and the data source can be inspected.
 
-- a implementação do servidor é pública;
-- o servidor roda na máquina do próprio usuário;
-- não há middleware hospedado;
-- não há conta;
-- não há chave de API;
-- não há telemetria;
-- a API pública do Querido Diário é acessada diretamente.
+## Feedback and real-world use
 
-Assim, todo o caminho entre o agente e a fonte de dados pode ser inspecionado.
+If you use this project for research, civic tech, data journalism, public procurement analysis, or in some AI-agent workflow, your feedback is especially useful — a hard-to-express search, a municipality that didn't behave as expected, friction configuring an MCP client, a filter that would matter in real use, or unexpected upstream API behavior.
 
----
+Open an [issue](https://github.com/lucaspmgomess/querido-diario-mcp-server/issues) describing the use case or problem. The goal is to evolve the project based on real usage while keeping the server small, safe, and read-only.
 
-## Feedback e uso real
+## Contributing
 
-Se você utilizar este projeto em pesquisa, civic tech, jornalismo de dados, análise de compras públicas ou em algum fluxo com agentes de IA, seu feedback é especialmente útil.
+Issues and pull requests are welcome. Please run the full check suite (`ruff check`, `ruff format --check`, `pyright`, `pytest --cov`) before opening a PR, and keep new tools/behavior scoped to what's documented above — this project intentionally stays small.
 
-Exemplos de feedback que ajudam:
-
-- uma busca difícil de expressar;
-- um caso de município que não funcionou como esperado;
-- dificuldade de configuração em algum cliente MCP;
-- um filtro que faria diferença no uso real;
-- comportamento inesperado da API upstream;
-- um exemplo de como você está utilizando o servidor.
-
-Abra uma [issue](https://github.com/lucaspmgomess/querido-diario-mcp-server/issues) descrevendo o caso de uso ou problema encontrado.
-
-O objetivo é evoluir o projeto com base em uso real, mantendo o servidor pequeno, seguro e somente leitura.
-
----
-
-## Contribuindo
-
-Issues e pull requests são bem-vindos.
-
-Antes de abrir uma PR, execute:
-
-```bash
-uv run ruff check .
-uv run ruff format --check .
-uv run pyright
-uv run pytest --cov
-```
-
-Mantenha novas ferramentas e comportamentos alinhados ao objetivo do projeto: oferecer a agentes compatíveis com MCP acesso seguro e estruturado à API pública do Querido Diário.
-
----
-
-## Licença
+## License
 
 [MIT](./LICENSE)
