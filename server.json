@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.lucaspmgomess/querido-diario-mcp-server",
   "title": "Querido Diário MCP Server",
-  "description": "Unofficial, read-only MCP server for the public Querido Diário API (Brazilian municipal gazettes)",
+  "description": "Local-first, read-only MCP server for structured access to Brazilian municipal official gazettes through the Querido Diário public API",
   "repository": {
     "url": "https://github.com/lucaspmgomess/querido-diario-mcp-server",
     "source": "github",
