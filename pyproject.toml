@@ -1,7 +1,7 @@
 [project]
 name = "querido-diario-mcp-server"
 version = "0.1.0"
-description = "Unofficial, open-source, local-first MCP server for the public Querido Diário API"
+description = "Local-first MCP server for structured, read-only access to Brazilian municipal official gazettes"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -12,8 +12,10 @@ requires-python = ">=3.12"
 keywords = [
     "mcp",
     "model-context-protocol",
+    "ai-agents",
     "querido-diario",
     "brazil",
+    "official-gazettes",
     "gazette",
     "diario-oficial",
     "open-data",
@@ -39,6 +41,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/lucaspmgomess/querido-diario-mcp-server"
+Documentation = "https://github.com/lucaspmgomess/querido-diario-mcp-server#readme"
 Repository = "https://github.com/lucaspmgomess/querido-diario-mcp-server"
 Issues = "https://github.com/lucaspmgomess/querido-diario-mcp-server/issues"
 
