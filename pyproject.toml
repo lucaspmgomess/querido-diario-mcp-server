@@ -43,7 +43,7 @@ dependencies = [
 Homepage = "https://github.com/lucaspmgomess/querido-diario-mcp-server"
 Documentation = "https://github.com/lucaspmgomess/querido-diario-mcp-server#readme"
 Repository = "https://github.com/lucaspmgomess/querido-diario-mcp-server"
-Issues = "https://github.com/lucaspmgomess/querido-diario-mcp-server/issues"
+Issues = "https://github.com/lucaspmgomess/querido-diario-mcp-server/issues"\nChangelog = "https://github.com/lucaspmgomess/querido-diario-mcp-server/blob/main/CHANGELOG.md"
 
 [project.scripts]
 querido-diario-mcp-server = "querido_diario_mcp_server:main"
